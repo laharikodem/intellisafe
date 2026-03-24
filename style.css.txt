@@ -1,0 +1,40 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(to right, #0f172a, #1e293b);
+    color: white;
+    text-align: center;
+}
+
+.container {
+    margin-top: 60px;
+}
+
+textarea {
+    width: 320px;
+    height: 100px;
+    border-radius: 10px;
+    border: none;
+    padding: 10px;
+    margin: 15px;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 18px;
+    margin: 8px;
+    border: none;
+    border-radius: 8px;
+    background: crimson;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    background: darkred;
+}
+
+.alert-btn {
+    background: orange;
+}
