@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,28 +8,47 @@
 <body>
 
 <div class="container">
+
   <h1>🚨 IntelliSafe</h1>
-  <p>Your Smart Emergency Assistant</p>
+  <p class="subtitle">Smart Emergency Assistance System</p>
 
-  <textarea id="textInput" placeholder="Type or speak..."></textarea>
+  <!-- INPUT SECTION -->
+  <div class="card">
+    <label>Describe your situation</label>
+    <textarea id="textInput" placeholder="Type or speak your situation..."></textarea>
 
-  <div class="buttons">
-    <button onclick="checkSafety()">Check Safety</button>
-    <button onclick="startVoice()">🎤 Speak</button>
+    <div class="buttons">
+      <button onclick="checkSafety()">Check Safety</button>
+      <button onclick="startVoice()">🎤 Voice Input</button>
+    </div>
   </div>
 
-  <!-- Pre-stored contacts -->
-  <select id="contact">
-    <option value="">Select Emergency Contact</option>
-    <option value="919391512953">👩 Mom</option>
-    <option value="919640234022">👨 Dad</option>
-    <option value="919059580148">👮 Police</option>
-  </select>
+  <!-- CONTACT SECTION -->
+  <div class="card">
+    <label>Emergency Contacts</label>
 
-  <div id="result"></div>
-  <div id="location"></div>
+    <select id="contact">
+      <option value="">Select Contact</option>
+      <option value="919391512953">👩 Mom</option>
+      <option value="919640234022">👨 Dad</option>
+    </select>
 
-  <button id="alertBtn" onclick="sendAlert()">🚨 Send Alert</button>
+    <div class="add-contact">
+      <input type="text" id="newName" placeholder="Name">
+      <input type="text" id="newNumber" placeholder="Number (9198xxxxxxx)">
+      <button onclick="addContact()">➕ Add</button>
+    </div>
+  </div>
+
+  <!-- STATUS SECTION -->
+  <div class="card status-card">
+    <div id="result">System Ready</div>
+    <div id="location"></div>
+  </div>
+
+  <!-- ALERT BUTTON -->
+  <button id="alertBtn" onclick="sendAlert()">🚨 Send Emergency Alert</button>
+
 </div>
 
 <script src="script.js"></script>
