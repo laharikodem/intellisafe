@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>IntelliSafe</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>IntelliSafe</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>🚨 IntelliSafe</h1>
-    <p>Your Smart Emergency Assistant</p>
+  <h1>🚨 IntelliSafe</h1>
+  <p>Your Smart Emergency Assistant</p>
 
-    <textarea id="inputText" placeholder="Type or speak your situation..."></textarea>
+  <textarea id="textInput" placeholder="Type or speak..."></textarea>
 
-    <div class="buttons">
-        <button onclick="analyze()">Check Safety</button>
-        <button onclick="startVoice()">🎤 Speak</button>
-    </div>
+  <div class="buttons">
+    <button onclick="checkSafety()">Check Safety</button>
+    <button onclick="startVoice()">🎤 Speak</button>
+  </div>
 
-    <h2 id="result"></h2>
-    <p id="location"></p>
+  <input type="text" id="contact" placeholder="Enter Emergency Contact">
 
-    <button class="alert-btn" onclick="sendAlert()">🚨 Send Alert</button>
+  <div id="result"></div>
+  <div id="location"></div>
+
+  <button id="alertBtn" onclick="sendAlert()">🚨 Send Alert</button>
 </div>
 
 <script src="script.js"></script>
