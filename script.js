@@ -1,39 +1,46 @@
 function sendAlert() {
   let contact = document.getElementById("contact").value;
 
-  if (contact === "") {
-    alert("Enter contact!");
+  if (!contact) {
+    alert("Enter contact with country code (+91...)");
     return;
   }
 
-  navigator.geolocation.getCurrentPosition((position) => {
-    let lat = position.coords.latitude;
-    let lon = position.coords.longitude;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      let lat = position.coords.latitude;
+      let lon = position.coords.longitude;
 
-    let message = `🚨 Emergency! I need help.\nLocation: https://www.google.com/maps?q=${lat},${lon}`;
+      let message = `🚨 Emergency! I need help.
+📍 Location: https://www.google.com/maps?q=${lat},${lon}`;
 
-    // Detect if mobile
-    let isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+      let url = `https://wa.me/${contact}?text=${encodeURIComponent(message)}`;
 
-    if (isMobile) {
-      // Open SMS app on phone
-      let smsLink = `sms:${contact}?body=${encodeURIComponent(message)}`;
-      window.location.href = smsLink;
+      // Open WhatsApp
+      window.open(url, "_blank");
+
+      showSuccess(contact);
+    },
+    () => {
+      let message = "🚨 Emergency! I need help!";
+
+      let url = `https://wa.me/${contact}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+
+      showSuccess(contact);
     }
+  );
+}
 
-    // ALWAYS show confirmation (for laptop + demo)
-    document.getElementById("result").innerHTML = `
-      <div class="danger">
-        🚨 ALERT SENT SUCCESSFULLY<br>
-        📞 Contact: ${contact}<br>
-        📍 Location Shared
-      </div>
-    `;
+// UI confirmation
+function showSuccess(contact) {
+  document.getElementById("result").innerHTML = `
+    <div class="danger">
+      🚨 ALERT SENT VIA WHATSAPP<br>
+      📞 ${contact}<br>
+      📍 Location Shared
+    </div>
+  `;
 
-    // Optional popup
-    alert("🚨 Emergency alert triggered!");
-  },
-  () => {
-    alert("Location access denied");
-  });
+  alert("✅ Opening WhatsApp...");
 }
