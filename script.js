@@ -1,45 +1,54 @@
-function analyze() {
-    let text = document.getElementById("inputText").value.toLowerCase();
+function checkSafety() {
+  let text = document.getElementById("textInput").value.toLowerCase();
+  let result = document.getElementById("result");
 
-    let dangerWords = ["help", "danger", "attack", "save", "emergency", "threat"];
-
-    let isDanger = dangerWords.some(word => text.includes(word));
-
-    if (isDanger) {
-        document.getElementById("result").innerText = "🚨 Emergency Detected!";
-        document.getElementById("result").style.color = "red";
-        getLocation();
-    } else {
-        document.getElementById("result").innerText = "✅ You are Safe";
-        document.getElementById("result").style.color = "lightgreen";
-    }
+  if (text.includes("help") || text.includes("danger") || text.includes("accident")) {
+    result.innerHTML = "🚨 Emergency Detected!";
+    result.classList.add("danger");
+    getLocation();
+  } else {
+    result.innerHTML = "✅ You are safe";
+    result.classList.remove("danger");
+  }
 }
 
-// 🎤 Voice input
-function startVoice() {
-    let recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-IN";
-
-    recognition.onresult = function(event) {
-        document.getElementById("inputText").value =
-            event.results[0][0].transcript;
-    };
-
-    recognition.start();
-}
-
-// 📍 Location
+// 📍 LOCATION
 function getLocation() {
-    navigator.geolocation.getCurrentPosition(function(pos) {
-        let lat = pos.coords.latitude;
-        let lon = pos.coords.longitude;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      let lat = position.coords.latitude;
+      let lon = position.coords.longitude;
 
-        document.getElementById("location").innerText =
-            "📍 Location: " + lat + ", " + lon;
-    });
+      document.getElementById("location").innerHTML =
+        `📍 <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" style="color:yellow;">
+        Open Live Location
+        </a>`;
+    },
+    () => {
+      alert("Location access denied");
+    }
+  );
 }
 
-// 🚨 Alert simulation
+// 🎤 VOICE
+function startVoice() {
+  let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    let speech = event.results[0][0].transcript;
+    document.getElementById("textInput").value = speech;
+  };
+}
+
+// 🚨 ALERT
 function sendAlert() {
-    alert("🚨 Alert sent to emergency contacts with your location!");
+  let contact = document.getElementById("contact").value;
+
+  if (contact === "") {
+    alert("Enter contact first!");
+    return;
+  }
+
+  alert("🚨 Alert sent to " + contact + "\nHelp needed! Check location.");
 }
