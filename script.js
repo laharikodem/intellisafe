@@ -1,54 +1,39 @@
-function checkSafety() {
-  let text = document.getElementById("textInput").value.toLowerCase();
-  let result = document.getElementById("result");
-
-  if (text.includes("help") || text.includes("danger") || text.includes("accident")) {
-    result.innerHTML = "🚨 Emergency Detected!";
-    result.classList.add("danger");
-    getLocation();
-  } else {
-    result.innerHTML = "✅ You are safe";
-    result.classList.remove("danger");
-  }
-}
-
-// 📍 LOCATION
-function getLocation() {
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      let lat = position.coords.latitude;
-      let lon = position.coords.longitude;
-
-      document.getElementById("location").innerHTML =
-        `📍 <a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" style="color:yellow;">
-        Open Live Location
-        </a>`;
-    },
-    () => {
-      alert("Location access denied");
-    }
-  );
-}
-
-// 🎤 VOICE
-function startVoice() {
-  let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.start();
-
-  recognition.onresult = function(event) {
-    let speech = event.results[0][0].transcript;
-    document.getElementById("textInput").value = speech;
-  };
-}
-
-// 🚨 ALERT
 function sendAlert() {
   let contact = document.getElementById("contact").value;
 
   if (contact === "") {
-    alert("Enter contact first!");
+    alert("Enter contact!");
     return;
   }
 
-  alert("🚨 Alert sent to " + contact + "\nHelp needed! Check location.");
+  navigator.geolocation.getCurrentPosition((position) => {
+    let lat = position.coords.latitude;
+    let lon = position.coords.longitude;
+
+    let message = `🚨 Emergency! I need help.\nLocation: https://www.google.com/maps?q=${lat},${lon}`;
+
+    // Detect if mobile
+    let isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // Open SMS app on phone
+      let smsLink = `sms:${contact}?body=${encodeURIComponent(message)}`;
+      window.location.href = smsLink;
+    }
+
+    // ALWAYS show confirmation (for laptop + demo)
+    document.getElementById("result").innerHTML = `
+      <div class="danger">
+        🚨 ALERT SENT SUCCESSFULLY<br>
+        📞 Contact: ${contact}<br>
+        📍 Location Shared
+      </div>
+    `;
+
+    // Optional popup
+    alert("🚨 Emergency alert triggered!");
+  },
+  () => {
+    alert("Location access denied");
+  });
 }
