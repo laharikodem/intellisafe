@@ -13,18 +13,27 @@
   <h1>🚨 IntelliSafe</h1>
   <p class="subtitle">Smart Emergency Assistance System</p>
 
+  <!-- Emergency Contacts Setup -->
   <div class="contacts">
-    <h2>Emergency Contacts</h2>
+    <h2>Setup Your Emergency Contacts</h2>
     <div id="contact-list"></div>
-    <button class="btn" onclick="addContactPrompt()">➕ Add Contact</button>
+    <button class="btn add-btn" onclick="addContactPrompt()">➕ Add Contact</button>
   </div>
 
+  <!-- Emergency Message -->
+  <div class="emergency-message">
+    <h2>Emergency Message</h2>
+    <textarea id="customMessage" placeholder="Type your emergency message here..."></textarea>
+  </div>
+
+  <!-- Actions -->
   <div class="actions">
-    <button class="btn alert-btn" onclick="sendAlert()">🚨 Send Alert</button>
+    <button class="btn alert-btn" onclick="sendAlert()">🚨 Critical Alert</button>
     <button class="btn safety-btn" onclick="checkSafety()">🛡️ Check Safety</button>
     <button class="btn location-btn" onclick="shareLocation()">📍 Share Location</button>
   </div>
 
+  <!-- Notification -->
   <div id="notification" class="notification"></div>
 </div>
 
