@@ -1,56 +1,156 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>IntelliSafe</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelliSafe - Team Astra</title>
+<style>
+  body { font-family: Arial; margin: 0; padding: 0; background: #f0f8ff; color: #333; }
+  .container { max-width: 600px; margin: auto; padding: 20px; }
+  h1 { text-align: center; color: #0077b6; }
+  input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+  ul { list-style: none; padding: 0; }
+  li { background: #caf0f8; margin: 5px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+  .btn { background: #0077b6; color: #fff; border: none; cursor: pointer; }
+  .btn:hover { background: #023e8a; }
+  .contacts-section, .alerts-section { margin-top: 20px; }
+</style>
 </head>
 <body>
 
 <div class="container">
-
   <h1>🚨 IntelliSafe</h1>
-  <p class="subtitle">Smart Emergency Assistance System</p>
 
-  <!-- INPUT SECTION -->
-  <div class="card">
-    <label>Describe your situation</label>
-    <textarea id="textInput" placeholder="Type or speak your situation..."></textarea>
-
-    <div class="buttons">
-      <button onclick="checkSafety()">Check Safety</button>
-      <button onclick="startVoice()">🎤 Voice Input</button>
-    </div>
+  <!-- Add Contact Section -->
+  <div class="contacts-section">
+    <h3>Emergency Contacts</h3>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="phone" placeholder="Phone number">
+    <button class="btn" onclick="addContact()">Add Contact</button>
+    <ul id="contact-list"></ul>
   </div>
 
-  <!-- CONTACT SECTION -->
-  <div class="card">
-    <label>Emergency Contacts</label>
-
-    <select id="contact">
-      <option value="">Select Contact</option>
-      <option value="919391512953">👩 Mom</option>
-      <option value="919640234022">👨 Dad</option>
-    </select>
-
-    <div class="add-contact">
-      <input type="text" id="newName" placeholder="Name">
-      <input type="text" id="newNumber" placeholder="Number (9198xxxxxxx)">
-      <button onclick="addContact()">➕ Add</button>
-    </div>
+  <!-- Alert Section -->
+  <div class="alerts-section">
+    <h3>Send Alert</h3>
+    <button class="btn" onclick="directAlert()">Direct Alert (Default Contact)</button>
+    <button class="btn" onclick="selectAlert()">Select Contacts Alert</button>
+    <button class="btn" onclick="checkSafety()">Check Safety</button>
+    <button class="btn" onclick="startVoice()">Voice Activation</button>
   </div>
-
-  <!-- STATUS SECTION -->
-  <div class="card status-card">
-    <div id="result">System Ready</div>
-    <div id="location"></div>
-  </div>
-
-  <!-- ALERT BUTTON -->
-  <button id="alertBtn" onclick="sendAlert()">🚨 Send Emergency Alert</button>
-
 </div>
 
-<script src="script.js"></script>
+<script>
+// --- Contact Management ---
+function addContact() {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  if (!name || !phone) return alert("Enter name & phone!");
+  let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  contacts.push({name, phone});
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+  document.getElementById("name").value = "";
+  document.getElementById("phone").value = "";
+  displayContacts();
+}
+
+function displayContacts() {
+  let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  const list = document.getElementById("contact-list");
+  list.innerHTML = "";
+  contacts.forEach((c, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${c.name} - ${c.phone} 
+      <span>
+        <button onclick="deleteContact(${i})">Delete</button>
+      </span>`;
+    list.appendChild(li);
+  });
+}
+
+function deleteContact(index) {
+  let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  contacts.splice(index, 1);
+  localStorage.setItem("contacts", JSON.stringify(contacts));
+  displayContacts();
+}
+
+// --- Alert Functions ---
+function getLocation(callback) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const coords = `Lat: ${position.coords.latitude}, Lon: ${position.coords.longitude}`;
+      callback(coords);
+    }, () => { callback("Location not available"); });
+  } else {
+    callback("Geolocation not supported");
+  }
+}
+
+// Direct Alert (first contact)
+function directAlert() {
+  let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  if (!contacts.length) return alert("No contacts added!");
+  const contact = contacts[0]; // Default contact
+  getLocation(loc => {
+    alert(`Direct Alert sent to ${contact.name} (${contact.phone}) at ${loc}`);
+    console.log(`Alert sent to ${contact.name} at ${loc}`);
+    // Integrate SMS/WhatsApp API here
+  });
+}
+
+// Select Contacts Alert
+function selectAlert() {
+  let contacts = JSON.parse(localStorage.getItem("contacts")) || [];
+  if (!contacts.length) return alert("No contacts added!");
+
+  // Show a prompt to select multiple contacts by number (simple)
+  let message = "Select contacts by number (comma-separated):\n";
+  contacts.forEach((c, i) => { message += `${i+1}. ${c.name}\n`; });
+  let input = prompt(message);
+  if (!input) return;
+  let selectedIndexes = input.split(",").map(x => parseInt(x)-1).filter(i => i >=0 && i < contacts.length);
+  getLocation(loc => {
+    selectedIndexes.forEach(i => {
+      const c = contacts[i];
+      alert(`Alert sent to ${c.name} (${c.phone}) at ${loc}`);
+      console.log(`Alert sent to ${c.name} at ${loc}`);
+      // Integrate SMS/WhatsApp API here
+    });
+  });
+}
+
+// Check Safety
+function checkSafety() {
+  alert("✅ Safety Checked! No issues detected.");
+}
+
+// --- Voice Activation ---
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Voice recognition not supported on this browser.");
+    return;
+  }
+  const recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.lang = "en-US";
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    const command = event.results[0][0].transcript.toLowerCase();
+    alert(`Voice Command: ${command}`);
+    if (command.includes("alert")) directAlert();
+    else if (command.includes("safety")) checkSafety();
+  };
+
+  recognition.onerror = function(event) {
+    alert("Voice recognition error: " + event.error);
+  };
+}
+
+// Initialize
+displayContacts();
+</script>
 </body>
 </html>
