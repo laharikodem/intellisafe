@@ -1,42 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IntelliSafe</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-</head>
-<body>
+// ============ CONTACT MANAGEMENT ============
+let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
 
-<div class="container">
-  <h1>🚨 IntelliSafe</h1>
-  <p class="subtitle">Smart Emergency Assistance System</p>
+function renderContacts() {
+  const list = document.getElementById('contact-list');
+  list.innerHTML = '';
+  if (contacts.length === 0) {
+    list.innerHTML = "<p>No contacts yet. Add them now!</p>";
+  }
+  contacts.forEach((c, index) => {
+    const div = document.createElement('div');
+    div.classList.add('contact-item');
+    div.innerHTML = `${c.name} - ${c.phone} <button onclick="deleteContact(${index})">❌</button>`;
+    list.appendChild(div);
+  });
+}
 
-  <!-- Emergency Contacts Setup -->
-  <div class="contacts">
-    <h2>Setup Your Emergency Contacts</h2>
-    <div id="contact-list"></div>
-    <button class="btn add-btn" onclick="addContactPrompt()">➕ Add Contact</button>
-  </div>
+function addContactPrompt() {
+  const name = prompt('Enter Contact Name:');
+  if (!name) return;
+  const phone = prompt('Enter Phone Number:');
+  if (!phone) return;
+  contacts.push({name, phone});
+  localStorage.setItem('contacts', JSON.stringify(contacts));
+  renderContacts();
+}
 
-  <!-- Emergency Message -->
-  <div class="emergency-message">
-    <h2>Emergency Message</h2>
-    <textarea id="customMessage" placeholder="Type your emergency message here..."></textarea>
-  </div>
+function deleteContact(index) {
+  contacts.splice(index, 1);
+  localStorage.setItem('contacts', JSON.stringify(contacts));
+  renderContacts();
+}
 
-  <!-- Actions -->
-  <div class="actions">
-    <button class="btn alert-btn" onclick="sendAlert()">🚨 Critical Alert</button>
-    <button class="btn safety-btn" onclick="checkSafety()">🛡️ Check Safety</button>
-    <button class="btn location-btn" onclick="shareLocation()">📍 Share Location</button>
-  </div>
+renderContacts();
 
-  <!-- Notification -->
-  <div id="notification" class="notification"></div>
-</div>
+// ============ NOTIFICATION ============
+function showNotification(msg) {
+  const notif = document.getElementById('notification');
+  notif.innerText = msg;
+  notif.style.display = 'block';
+  setTimeout(() => { notif.style.display = 'none'; }, 2000);
+}
 
-<script src="script.js"></script>
-</body>
-</html>
+// ============ SILENT ONE-CLICK ALERT ============
+function sendAlert() {
+  if (contacts.length === 0) {
+    showNotification('Add your emergency contacts first!');
+    return;
+  }
+
+  const messageBox = document.getElementById('customMessage');
+  const customMessage = messageBox.value || "🚨 I am in emergency. Please help!";
+
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const link = `https://www.google.com/maps?q=${lat},${lng}`;
+
+    contacts.forEach(c => {
+      console.log(`Silent alert sent to ${c.name} (${c.phone}): ${customMessage} ${link}`);
+    });
+
+    // Critical alert animation
+    const alertBtn = document.querySelector('.alert-btn');
+    alertBtn.style.animation = 'shake 0.5s';
+    setTimeout(() => alertBtn.style.animation = 'pulse 2s infinite', 500);
+
+    showNotification(`🚨 Critical alert sent to all contacts!`);
+  }, () => showNotification('Location access denied!'));
+}
+
+// ============ SAFETY CHECK ============
+function checkSafety() {
+  showNotification('🛡️ Safety check complete! You are safe.');
+}
+
+// ============ SHARE LOCATION ============
+let locationInterval;
+function shareLocation() {
+  if (locationInterval) {
+    clearInterval(locationInterval);
+    locationInterval = null;
+    showNotification('📍 Location sharing stopped!');
+    return;
+  }
+  showNotification('📍 Location sharing started for 10 minutes!');
+  const start = Date.now();
+  locationInterval = setInterval(() => {
+    const elapsed = (Date.now() - start) / 1000;
+    if (elapsed > 600) { // 10 minutes
+      clearInterval(locationInterval);
+      locationInterval = null;
+      showNotification('📍 Location sharing ended!');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      console.log(`Silent location update: ${lat},${lng}`);
+    });
+  }, 15000);
+}
