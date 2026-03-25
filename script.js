@@ -89,8 +89,20 @@ function toggleFeature(f) {
 
 // =================== MESSAGE ==================
 function generatePreview() {
-  const loc = state.location ? `${state.location.latitude.toFixed(5)},${state.location.longitude.toFixed(5)}` : 'Unknown';
-  document.getElementById('msgPreview').value = `EMERGENCY ALERT!\nLocation: ${loc}\nPlease help me!`;
+  if(!state.location){
+    document.getElementById('msgPreview').value = `🚨 EMERGENCY ALERT!\nLocation: Unknown\nPlease help me!`;
+    return;
+  }
+
+  const lat = state.location.latitude.toFixed(6);
+  const lon = state.location.longitude.toFixed(6);
+  const mapsLink = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+
+  document.getElementById('msgPreview').value = 
+    `🚨 EMERGENCY ALERT!\n` +
+    `I need help immediately!\n` +
+    `📍 My location: ${mapsLink}\n` +
+    `Open this link to get directions to me.`;
 }
 
 function copyMessage() {
