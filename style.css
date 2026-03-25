@@ -1,92 +1,321 @@
-// ============ CONTACT MANAGEMENT ============
-let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
-
-function renderContacts() {
-  const list = document.getElementById('contact-list');
-  list.innerHTML = '';
-  if (contacts.length === 0) {
-    list.innerHTML = "<p>No contacts yet. Add them now!</p>";
-  }
-  contacts.forEach((c, index) => {
-    const div = document.createElement('div');
-    div.classList.add('contact-item');
-    div.innerHTML = `${c.name} - ${c.phone} <button onclick="deleteContact(${index})">❌</button>`;
-    list.appendChild(div);
-  });
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2230;
+  --border: #30363d;
+  --accent: #f78166;
+  --accent2: #ffa657;
+  --green: #3fb950;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --yellow: #e3b341;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --danger: #ff4d4f;
 }
 
-function addContactPrompt() {
-  const name = prompt('Enter Contact Name:');
-  if (!name) return;
-  const phone = prompt('Enter Phone Number:');
-  if (!phone) return;
-  contacts.push({name, phone});
-  localStorage.setItem('contacts', JSON.stringify(contacts));
-  renderContacts();
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-function deleteContact(index) {
-  contacts.splice(index, 1);
-  localStorage.setItem('contacts', JSON.stringify(contacts));
-  renderContacts();
+/* Animated background grid */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(247,129,102,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247,129,102,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
 }
 
-renderContacts();
+.app { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 16px 14px 80px; }
 
-// ============ NOTIFICATION ============
-function showNotification(msg) {
-  const notif = document.getElementById('notification');
-  notif.innerText = msg;
-  notif.style.display = 'block';
-  setTimeout(() => { notif.style.display = 'none'; }, 3000);
+/* ── Header ── */
+.header { text-align: center; padding: 24px 0 20px; position: relative; }
+
+.header-logo {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #f78166, #ffa657);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-// ============ CRITICAL ALERT WITH LOCATION ============
-function sendAlert() {
-  if (contacts.length === 0) { showNotification('Add your emergency contacts first!'); return; }
-  const messageBox = document.getElementById('customMessage');
-  const customMessage = messageBox.value || "🚨 I am in emergency. Please help!";
+.header-logo .emoji { font-size: 28px; filter: none; -webkit-text-fill-color: initial; }
 
-  // Get live location
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    const link = `https://www.google.com/maps?q=${lat},${lng}`;
-
-    contacts.forEach(c => {
-      // Replace the below line with your actual SMS/WhatsApp sending function
-      console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage} ${link}`);
-    });
-
-    showNotification('🚨 Critical alert sent with location!');
-  }, (err) => {
-    showNotification('❌ Location access denied!');
-  });
+.header-sub {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 4px;
 }
 
-// ============ SAFETY CHECK ============
-function checkSafety() {
-  showNotification('🛡️ Safety check complete! You are safe.');
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--green);
 }
 
-// ============ SHARE LOCATION ============
-let locationInterval;
-function shareLocation() {
-  if (locationInterval) {
-    clearInterval(locationInterval);
-    locationInterval = null;
-    showNotification('📍 Location sharing stopped!');
-    return;
-  }
-  showNotification('📍 Location sharing started for 10 minutes!');
-  const start = Date.now();
-  locationInterval = setInterval(() => {
-    const elapsed = (Date.now() - start) / 1000;
-    if (elapsed > 600) { clearInterval(locationInterval); locationInterval = null; showNotification('📍 Location sharing ended!'); return; }
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      console.log(`Silent location update: ${lat},${lng}`);
-    });
-  }, 15000);
+.pulse-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse-anim 2s infinite;
 }
+
+@keyframes pulse-anim {
+  0%,100% { box-shadow: 0 0 0 0 rgba(63,185,80,0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(63,185,80,0); }
+}
+
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+  opacity: 0.6;
+}
+
+.card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.card-title .icon { font-size: 14px; }
+
+/* ── Inputs ── */
+textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  padding: 12px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+textarea:focus { border-color: var(--accent); }
+textarea::placeholder { color: var(--muted); }
+
+select,
+input[type="text"],
+input[type="tel"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+}
+select:focus,
+input:focus { border-color: var(--accent); }
+
+/* ── Buttons ── */
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+
+.btn {
+  flex: 1;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary   { background: var(--accent); color: #fff; }
+.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-voice     { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
+
+.btn-add {
+  padding: 10px 14px;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-danger {
+  width: 100%;
+  padding: 18px;
+  border-radius: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #f78166, #ff4d4f);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 30px rgba(247,129,102,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.btn-danger:active { transform: scale(0.98); }
+.btn-danger.armed {
+  animation: danger-pulse 1.5s infinite;
+  background: linear-gradient(135deg, #ff4d4f, #c0392b);
+}
+
+@keyframes danger-pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(255,77,79,0.4); }
+  50%      { box-shadow: 0 0 50px rgba(255,77,79,0.8); }
+}
+
+.btn-danger-wrap { position: relative; }
+
+/* ── AI Result ── */
+.ai-result {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  display: none;
+}
+.ai-result.show { display: block; }
+
+.ai-result .severity {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+.severity.low      { background: rgba(63,185,80,0.15);  color: var(--green); }
+.severity.medium   { background: rgba(227,179,65,0.15); color: var(--yellow); }
+.severity.high     { background: rgba(248,81,73,0.15);  color: var(--red); }
+.severity.critical { background: rgba(255,77,79,0.3);   color: #ff6b6b; border: 1px solid #ff4d4f; }
+
+/* ── Contacts ── */
+.input-row { display: flex; gap: 8px; margin-top: 8px; }
+.input-row input { flex: 1; }
+
+.contact-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+.chip {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px 4px 12px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip .remove { cursor: pointer; color: var(--muted); font-size: 14px; line-height: 1; }
+.chip .remove:hover { color: var(--red); }
+
+/* ── Feature Grid ── */
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.feature-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.feature-item:hover { border-color: var(--accent); }
+.feature-item.active { border-color: var(--accent); background: rgba(247,129,102,0.08); }
+
+.feature-item .f-icon  { font-size: 22px; margin-bottom: 6px; display: block; }
+.feature-item .f-label { font-size: 12px; font-weight: 600; color: var(--text); }
+.feature-item .f-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.toggle {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 28px; height: 16px;
+  background: var(--border);
+  border-radius: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 12px; height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.feature-item.active .toggle { background: var(--accent); }
+.feature-item.active .toggle::after { transform: translateX(12px); }
+
+/* ── Location Panel ── */
+.location-info {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12
