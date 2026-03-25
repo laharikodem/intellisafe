@@ -1,102 +1,55 @@
-// ============ CONTACT MANAGEMENT ============
-let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+/* Base Styling */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+body {
+  background: linear-gradient(135deg,#ff5858,#f09819);
+  color:#fff; display:flex; justify-content:center; align-items:center;
+  min-height:100vh; overflow-x:hidden;
+}
+.container {
+  background: rgba(0,0,0,0.6); padding:30px; border-radius:20px;
+  width:95%; max-width:500px; text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,0.6); animation:fadeIn 1s ease forwards;
+}
+h1 { font-size:2.5rem; margin-bottom:10px; text-shadow:2px 2px 10px #000; }
+.subtitle { margin-bottom:30px; font-size:1.2rem; }
+.contacts h2,.emergency-message h2,.timer-setup h2 { margin-bottom:10px; }
+#contact-list { margin-bottom:15px; }
+textarea,input { width:90%; padding:10px; border-radius:10px; border:none; font-size:1rem; margin-bottom:10px; }
 
-function renderContacts() {
-  const list = document.getElementById('contact-list');
-  list.innerHTML = '';
-  if (contacts.length === 0) {
-    list.innerHTML = "<p>No contacts yet. Add them now!</p>";
-  }
-  contacts.forEach((c, index) => {
-    const div = document.createElement('div');
-    div.classList.add('contact-item');
-    div.innerHTML = `${c.name} - ${c.phone} <button onclick="deleteContact(${index})">❌</button>`;
-    list.appendChild(div);
-  });
+/* Buttons */
+.btn {
+  margin:10px; padding:12px 20px; border:none; border-radius:12px;
+  cursor:pointer; font-size:1rem; transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+.btn:hover { transform:scale(1.1); box-shadow:0 0 15px rgba(255,255,255,0.5); }
+.add-btn { background:#3bff9b; color:#000; }
+.alert-btn { background:#ff3b3b; color:#fff; animation:pulse 2s infinite; }
+.safety-btn { background:#3b8bff; color:#fff; }
+.location-btn { background:#ffb13b; color:#fff; }
+
+/* Notification */
+.notification {
+  position:fixed; top:20px; right:20px; background:rgba(0,0,0,0.8);
+  padding:15px 20px; border-radius:10px; display:none; animation:slideIn 0.5s ease forwards; z-index:1000;
 }
 
-function addContactPrompt() {
-  const name = prompt('Enter Contact Name:');
-  if (!name) return;
-  const phone = prompt('Enter Phone Number:');
-  if (!phone) return;
-  contacts.push({name, phone});
-  localStorage.setItem('contacts', JSON.stringify(contacts));
-  renderContacts();
+/* Animations */
+@keyframes fadeIn { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
+@keyframes slideIn { from {opacity:0; transform:translateX(50px);} to {opacity:1; transform:translateX(0);} }
+@keyframes pulse {
+  0%{ box-shadow:0 0 5px #ff0000; transform:scale(1); }
+  50%{ box-shadow:0 0 25px #ff0000; transform:scale(1.05); }
+  100%{ box-shadow:0 0 5px #ff0000; transform:scale(1); }
+}
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
 }
 
-function deleteContact(index) {
-  contacts.splice(index, 1);
-  localStorage.setItem('contacts', JSON.stringify(contacts));
-  renderContacts();
-}
-
-renderContacts();
-
-// ============ NOTIFICATION ============
-function showNotification(msg) {
-  const notif = document.getElementById('notification');
-  notif.innerText = msg;
-  notif.style.display = 'block';
-  setTimeout(() => { notif.style.display = 'none'; }, 2000);
-}
-
-// ============ SILENT ONE-CLICK ALERT ============
-function sendAlert() {
-  if (contacts.length === 0) {
-    showNotification('Add your emergency contacts first!');
-    return;
-  }
-
-  const messageBox = document.getElementById('customMessage');
-  const customMessage = messageBox.value || "🚨 I am in emergency. Please help!";
-
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    const link = `https://www.google.com/maps?q=${lat},${lng}`;
-
-    contacts.forEach(c => {
-      console.log(`Silent alert sent to ${c.name} (${c.phone}): ${customMessage} ${link}`);
-    });
-
-    // Critical alert animation
-    const alertBtn = document.querySelector('.alert-btn');
-    alertBtn.style.animation = 'shake 0.5s';
-    setTimeout(() => alertBtn.style.animation = 'pulse 2s infinite', 500);
-
-    showNotification(`🚨 Critical alert sent to all contacts!`);
-  }, () => showNotification('Location access denied!'));
-}
-
-// ============ SAFETY CHECK ============
-function checkSafety() {
-  showNotification('🛡️ Safety check complete! You are safe.');
-}
-
-// ============ SHARE LOCATION ============
-let locationInterval;
-function shareLocation() {
-  if (locationInterval) {
-    clearInterval(locationInterval);
-    locationInterval = null;
-    showNotification('📍 Location sharing stopped!');
-    return;
-  }
-  showNotification('📍 Location sharing started for 10 minutes!');
-  const start = Date.now();
-  locationInterval = setInterval(() => {
-    const elapsed = (Date.now() - start) / 1000;
-    if (elapsed > 600) { // 10 minutes
-      clearInterval(locationInterval);
-      locationInterval = null;
-      showNotification('📍 Location sharing ended!');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      console.log(`Silent location update: ${lat},${lng}`);
-    });
-  }, 15000);
-}
+/* Contact item styling */
+.contact-item { margin:5px 0; }
+.contact-item button { margin-left:10px; border:none; background:#ff5858; color:#fff; border-radius:6px; cursor:pointer; transition:0.3s; }
+.contact-item button:hover { transform:scale(1.2); }
