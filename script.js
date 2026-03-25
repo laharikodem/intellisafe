@@ -1,48 +1,35 @@
-// ================== SEND ALERT WITH LOCATION ==================
-function sendAlert() {
-  if (contacts.length === 0) {
-    showNotification('Add your emergency contacts first!');
+// Replace or update your send/alert function with this:
+
+function sendAlertWithLocation() {
+  if (!contacts || contacts.length === 0) {
+    showNotification('Add emergency contacts first!');
     return;
   }
 
-  const messageBox = document.getElementById('customMessage');
-  const customMessage = messageBox.value || "🚨 I am in emergency. Please help!";
+  const msgField = document.getElementById("customMessage");
+  const message = msgField?.value || "🚨 Emergency! Please help me!";
 
-  // Request location from browser
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
-
-        // Send message to all contacts (replace console.log with your actual send logic)
-        contacts.forEach(c => {
-          console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage} ${locationLink}`);
-          // Example: sendWhatsAppMessage(c.phone, `${customMessage} Location: ${locationLink}`);
-        });
-
-        showNotification("🚨 Critical alert sent with live location!");
-      },
-      (error) => {
-        console.error("Location access denied or failed:", error);
-        showNotification("❌ Cannot access location! Alert sent without location.");
-        // Send message without location as fallback
-        contacts.forEach(c => {
-          console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage}`);
-        });
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
-  } else {
-    showNotification("❌ Geolocation is not supported by this browser!");
-    // Send message without location as fallback
-    contacts.forEach(c => {
-      console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage}`);
-    });
+  if (!navigator.geolocation) {
+    showNotification("❌ Location not supported");
+    sendToContacts(message); // fallback
+    return;
   }
+
+  navigator.geolocation.getCurrentPosition(position => {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
+
+    contacts.forEach(c => {
+      const fullMsg = `${message}\nLocation: ${locationLink}`;
+      // Your existing send function here
+      sendMessageToContact(c.phone, fullMsg);
+    });
+
+    showNotification("🚨 Alert sent with location!");
+  }, error => {
+    console.error(error);
+    showNotification("❌ Location denied — sending without it.");
+    contacts.forEach(c => sendMessageToContact(c.phone, message));
+  });
 }
