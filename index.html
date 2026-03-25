@@ -2,39 +2,166 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IntelliSafe</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IntelliSafe – Smart Emergency Assistance</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-  <h1>🚨 IntelliSafe</h1>
-  <p class="subtitle">Smart Emergency Assistance System</p>
-
-  <!-- Contacts Setup -->
-  <div class="contacts">
-    <h2>Setup Your Emergency Contacts</h2>
-    <div id="contact-list"></div>
-    <button class="btn add-btn" onclick="addContactPrompt()">➕ Add Contact</button>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo"><span class="emoji">🚨</span> IntelliSafe</div>
+    <div class="header-sub">Smart Emergency Assistance System</div>
+    <div class="status-bar">
+      <div class="pulse-dot"></div>
+      <span id="systemStatus">System Ready — All Modules Active</span>
+    </div>
   </div>
 
-  <!-- Emergency Message -->
-  <div class="emergency-message">
-    <h2>Emergency Message</h2>
-    <textarea id="customMessage" placeholder="Type your emergency message here..."></textarea>
+  <!-- AI Situation Analyzer -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🧠</span> AI Situation Analyzer</div>
+    <textarea id="situationInput" rows="3" placeholder="Describe your emergency situation... AI will analyze severity and suggest actions"></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="analyzeSituation()">⚡ Analyze</button>
+      <button class="btn btn-voice" onclick="toggleVoice()" id="voiceBtn">
+        🎙️ Voice Input
+        <div class="recording-bars" id="recordBars">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div>
+        </div>
+      </button>
+    </div>
+    <div class="ai-result" id="aiResult"></div>
   </div>
 
-  <!-- Actions -->
-  <div class="actions">
-    <button class="btn alert-btn" onclick="sendAlert()">🚨 Critical Alert</button>
-    <button class="btn safety-btn" onclick="checkSafety()">🛡️ Check Safety</button>
-    <button class="btn location-btn" onclick="shareLocation()">📍 Share Location</button>
+  <!-- Location Tracker -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📍</span> Live Location</div>
+    <div class="location-info" id="locationInfo">
+      <div class="loc-row"><span class="loc-label">Status</span><span id="locStatusText">Fetching location...</span></div>
+      <div class="loc-row"><span class="loc-label">Coords</span><span id="locCoords">—</span></div>
+      <div class="loc-row"><span class="loc-label">Address</span><span id="locAddress">—</span></div>
+      <div class="loc-row"><span class="loc-label">Accuracy</span><span id="locAccuracy">—</span></div>
+    </div>
+    <div class="loc-status">
+      <div class="loc-dot" id="locDot"></div>
+      <span style="font-size:12px;color:var(--muted)" id="locStatusLabel">Acquiring GPS...</span>
+    </div>
+    <div class="info-chips" id="infoChips">
+      <div class="info-chip" id="chipBattery">🔋 Battery —</div>
+      <div class="info-chip" id="chipNetwork">📡 Network —</div>
+      <div class="info-chip" id="chipTime">🕐 —</div>
+    </div>
   </div>
 
-  <!-- Notification -->
-  <div id="notification" class="notification"></div>
+  <!-- Emergency Contacts -->
+  <div class="card">
+    <div class="card-title"><span class="icon">👥</span> Emergency Contacts</div>
+    <select id="contactSelect" onchange="selectContact()">
+      <option value="">Select Saved Contact</option>
+    </select>
+    <div class="input-row">
+      <input type="text" id="contactName" placeholder="Name" />
+      <input type="tel" id="contactNumber" placeholder="Number (9198xxxxxxxx)" />
+      <button class="btn-add" onclick="addContact()" title="Add Contact">+</button>
+    </div>
+    <div class="contact-chips" id="contactChips"></div>
+  </div>
+
+  <!-- Automation Features -->
+  <div class="card">
+    <div class="card-title"><span class="icon">⚙️</span> Automation Features</div>
+    <div class="feature-grid">
+      <div class="feature-item active" id="feat-autoloc" onclick="toggleFeature('autoloc')">
+        <span class="f-icon">🗺️</span>
+        <div class="f-label">Auto Location</div>
+        <div class="f-desc">Attach GPS coords to every alert</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item active" id="feat-repeat" onclick="toggleFeature('repeat')">
+        <span class="f-icon">🔁</span>
+        <div class="f-label">Repeat Alert</div>
+        <div class="f-desc">Re-send every 5 min if no response</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item" id="feat-ai" onclick="toggleFeature('ai')">
+        <span class="f-icon">🤖</span>
+        <div class="f-label">AI Auto-Compose</div>
+        <div class="f-desc">AI writes alert message for you</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item" id="feat-shake" onclick="toggleFeature('shake')">
+        <span class="f-icon">📳</span>
+        <div class="f-label">Shake to SOS</div>
+        <div class="f-desc">Rapid shake triggers emergency</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item" id="feat-battery" onclick="toggleFeature('battery')">
+        <span class="f-icon">🔋</span>
+        <div class="f-label">Low Battery Alert</div>
+        <div class="f-desc">Notify contacts on &lt;15% battery</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item" id="feat-checkin" onclick="toggleFeature('checkin')">
+        <span class="f-icon">✅</span>
+        <div class="f-label">Safe Check-In</div>
+        <div class="f-desc">Periodic "I'm safe" auto-messages</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item" id="feat-photo" onclick="toggleFeature('photo')">
+        <span class="f-icon">📸</span>
+        <div class="f-label">Auto Snapshot</div>
+        <div class="f-desc">Attach camera photo on SOS</div>
+        <div class="toggle"></div>
+      </div>
+      <div class="feature-item" id="feat-countdown" onclick="toggleFeature('countdown')">
+        <span class="f-icon">⏱️</span>
+        <div class="f-label">5-sec Cancel Window</div>
+        <div class="f-desc">Countdown before sending alert</div>
+        <div class="toggle"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Preview -->
+  <div class="card">
+    <div class="card-title"><span class="icon">💬</span> Alert Message Preview</div>
+    <textarea id="msgPreview" rows="5" style="font-size:12px;line-height:1.6" placeholder="Your emergency alert message will appear here..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="generatePreview()">🔄 Regenerate</button>
+      <button class="btn btn-secondary" onclick="copyMessage()">📋 Copy</button>
+    </div>
+  </div>
+
+  <!-- Activity Log -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Activity Log</div>
+    <div id="activityLog">
+      <div class="log-empty">No activity yet</div>
+    </div>
+  </div>
+
+  <!-- SOS Button -->
+  <div class="btn-danger-wrap">
+    <button class="btn-danger" id="sosBtn" onclick="triggerSOS()">
+      🚨 SEND EMERGENCY ALERT
+    </button>
+  </div>
 </div>
+
+<!-- Countdown Overlay -->
+<div class="countdown-overlay" id="countdownOverlay">
+  <div style="font-size:14px;color:var(--muted);letter-spacing:2px;text-transform:uppercase">SENDING IN</div>
+  <div class="countdown-num" id="countdownNum">5</div>
+  <div class="countdown-text">Alert will be sent to all emergency contacts</div>
+  <button class="countdown-cancel" onclick="cancelSOS()">✕ CANCEL</button>
+</div>
+
+<!-- Toast Notification -->
+<div class="notif" id="toast"></div>
 
 <script src="script.js"></script>
 </body>
