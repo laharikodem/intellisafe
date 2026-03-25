@@ -1,55 +1,48 @@
-/* Base Styling */
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
-body {
-  background: linear-gradient(135deg,#ff5858,#f09819);
-  color:#fff; display:flex; justify-content:center; align-items:center;
-  min-height:100vh; overflow-x:hidden;
-}
-.container {
-  background: rgba(0,0,0,0.6); padding:30px; border-radius:20px;
-  width:95%; max-width:500px; text-align:center;
-  box-shadow:0 8px 30px rgba(0,0,0,0.6); animation:fadeIn 1s ease forwards;
-}
-h1 { font-size:2.5rem; margin-bottom:10px; text-shadow:2px 2px 10px #000; }
-.subtitle { margin-bottom:30px; font-size:1.2rem; }
-.contacts h2,.emergency-message h2,.timer-setup h2 { margin-bottom:10px; }
-#contact-list { margin-bottom:15px; }
-textarea,input { width:90%; padding:10px; border-radius:10px; border:none; font-size:1rem; margin-bottom:10px; }
+// ================== SEND ALERT WITH LOCATION ==================
+function sendAlert() {
+  if (contacts.length === 0) {
+    showNotification('Add your emergency contacts first!');
+    return;
+  }
 
-/* Buttons */
-.btn {
-  margin:10px; padding:12px 20px; border:none; border-radius:12px;
-  cursor:pointer; font-size:1rem; transition: transform 0.2s ease, box-shadow 0.3s ease;
-}
-.btn:hover { transform:scale(1.1); box-shadow:0 0 15px rgba(255,255,255,0.5); }
-.add-btn { background:#3bff9b; color:#000; }
-.alert-btn { background:#ff3b3b; color:#fff; animation:pulse 2s infinite; }
-.safety-btn { background:#3b8bff; color:#fff; }
-.location-btn { background:#ffb13b; color:#fff; }
+  const messageBox = document.getElementById('customMessage');
+  const customMessage = messageBox.value || "🚨 I am in emergency. Please help!";
 
-/* Notification */
-.notification {
-  position:fixed; top:20px; right:20px; background:rgba(0,0,0,0.8);
-  padding:15px 20px; border-radius:10px; display:none; animation:slideIn 0.5s ease forwards; z-index:1000;
-}
+  // Request location from browser
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
 
-/* Animations */
-@keyframes fadeIn { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
-@keyframes slideIn { from {opacity:0; transform:translateX(50px);} to {opacity:1; transform:translateX(0);} }
-@keyframes pulse {
-  0%{ box-shadow:0 0 5px #ff0000; transform:scale(1); }
-  50%{ box-shadow:0 0 25px #ff0000; transform:scale(1.05); }
-  100%{ box-shadow:0 0 5px #ff0000; transform:scale(1); }
-}
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
+        // Send message to all contacts (replace console.log with your actual send logic)
+        contacts.forEach(c => {
+          console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage} ${locationLink}`);
+          // Example: sendWhatsAppMessage(c.phone, `${customMessage} Location: ${locationLink}`);
+        });
 
-/* Contact item styling */
-.contact-item { margin:5px 0; }
-.contact-item button { margin-left:10px; border:none; background:#ff5858; color:#fff; border-radius:6px; cursor:pointer; transition:0.3s; }
-.contact-item button:hover { transform:scale(1.2); }
+        showNotification("🚨 Critical alert sent with live location!");
+      },
+      (error) => {
+        console.error("Location access denied or failed:", error);
+        showNotification("❌ Cannot access location! Alert sent without location.");
+        // Send message without location as fallback
+        contacts.forEach(c => {
+          console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage}`);
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  } else {
+    showNotification("❌ Geolocation is not supported by this browser!");
+    // Send message without location as fallback
+    contacts.forEach(c => {
+      console.log(`Alert sent to ${c.name} (${c.phone}): ${customMessage}`);
+    });
+  }
+}
