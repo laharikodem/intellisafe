@@ -1,54 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>IntelliSafe</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelliSafe</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <div class="container">
-
   <h1>🚨 IntelliSafe</h1>
   <p class="subtitle">Smart Emergency Assistance System</p>
 
-  <!-- INPUT SECTION -->
-  <div class="card">
-    <label>Describe your situation</label>
-    <textarea id="textInput" placeholder="Type or speak your situation..."></textarea>
-
-    <div class="buttons">
-      <button onclick="checkSafety()">Check Safety</button>
-      <button onclick="startVoice()">🎤 Voice Input</button>
-    </div>
+  <div class="contacts">
+    <h2>Emergency Contacts</h2>
+    <div id="contact-list"></div>
+    <button class="btn" onclick="addContactPrompt()">➕ Add Contact</button>
   </div>
 
-  <!-- CONTACT SECTION -->
-  <div class="card">
-    <label>Emergency Contacts</label>
-
-    <select id="contact">
-      <option value="">Select Contact</option>
-      <option value="918008592444">👩 Mom</option>
-      <option value="919391512953">👨 Dad</option>
-    </select>
-
-    <div class="add-contact">
-      <input type="text" id="newName" placeholder="Name">
-      <input type="text" id="newNumber" placeholder="Number (9198xxxxxxx)">
-      <button onclick="addContact()">➕ Add</button>
-    </div>
+  <div class="actions">
+    <button class="btn alert-btn" onclick="sendAlert()">🚨 Send Alert</button>
+    <button class="btn safety-btn" onclick="checkSafety()">🛡️ Check Safety</button>
+    <button class="btn location-btn" onclick="shareLocation()">📍 Share Location</button>
   </div>
 
-  <!-- STATUS SECTION -->
-  <div class="card status-card">
-    <div id="result">System Ready</div>
-    <div id="location"></div>
-  </div>
-
-  <!-- ALERT BUTTON -->
-  <button id="alertBtn" onclick="sendAlert()">🚨 Send Emergency Alert</button>
-
+  <div id="notification" class="notification"></div>
 </div>
 
 <script src="script.js"></script>
