@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IntelliSafe</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -26,12 +25,6 @@
     <textarea id="customMessage" placeholder="Type your emergency message here..."></textarea>
   </div>
 
-  <!-- Timer -->
-  <div class="timer-setup">
-    <h2>Auto-Alert Timer (minutes)</h2>
-    <input type="number" id="autoTimer" placeholder="Enter time in minutes" min="1">
-  </div>
-
   <!-- Actions -->
   <div class="actions">
     <button class="btn alert-btn" onclick="sendAlert()">🚨 Critical Alert</button>
@@ -41,9 +34,6 @@
 
   <!-- Notification -->
   <div id="notification" class="notification"></div>
-
-  <!-- Audio for confirmation -->
-  <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
 </div>
 
 <script src="script.js"></script>
