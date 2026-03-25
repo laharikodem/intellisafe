@@ -120,9 +120,23 @@ function cancelSOS() {
 }
 
 function sendSOS() {
-  document.getElementById('countdownOverlay').style.display='none';
-  addLog('SOS alert sent!');
-  showToast('🚨 SOS Alert Sent!','success');
+  document.getElementById('countdownOverlay').style.display = 'none';
+
+  const message = encodeURIComponent(document.getElementById('msgPreview').value);
+
+  if (!state.contacts || state.contacts.length === 0) {
+    showToast('No contacts to send', 'error');
+    return;
+  }
+
+  state.contacts.forEach(c => {
+    if (!c.number) return;
+    const waURL = `https://wa.me/${c.number}?text=${message}`;
+    window.open(waURL, '_blank'); // Opens WhatsApp Web / Mobile
+  });
+
+  addLog('🚨 SOS alert opened in WhatsApp for all contacts');
+  showToast('🚨 SOS Alert opened in WhatsApp', 'success');
 }
 
 // =================== LOCATION ==================
