@@ -1,52 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IntelliSafe Emergency App</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>IntelliSafe</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="container">
 
-  <!-- Hero / Home Screen -->
-  <header class="hero">
-    <h1>🚨 IntelliSafe</h1>
-    <p>One-click emergency alerts for your safety</p>
+  <h1>🚨 IntelliSafe</h1>
+  <p class="subtitle">Smart Emergency Assistance System</p>
+
+  <!-- INPUT SECTION -->
+  <div class="card">
+    <label>Describe your situation</label>
+    <textarea id="textInput" placeholder="Type or speak your situation..."></textarea>
+
     <div class="buttons">
-      <button id="startLocationBtn" class="btn-primary">📍 Start Live Location</button>
-      <select id="riskLevel" class="risk-selector">
-        <option value="low">Low Risk 🟢</option>
-        <option value="medium">Medium Risk 🟡</option>
-        <option value="high">High Risk 🔴</option>
-      </select>
-      <button id="emergencyBtn" class="emergency-btn">🚨 EMERGENCY</button>
-      <button id="testBtn" class="btn-secondary">🧪 Test Alert</button>
+      <button onclick="checkSafety()">Check Safety</button>
+      <button onclick="startVoice()">🎤 Voice Input</button>
     </div>
-  </header>
-
-  <!-- Contacts Section -->
-  <section class="contacts">
-    <h2>👤 Emergency Contacts</h2>
-    <div id="contactList" class="contact-list"></div>
-    <button id="addContactBtn" class="btn-primary">➕ Add Contact</button>
-  </section>
-
-</div>
-
-<!-- Add/Edit Contact Modal -->
-<div id="contactModal" class="modal">
-  <div class="modal-content">
-    <span class="closeBtn">&times;</span>
-    <h3 id="modalTitle">Add Contact</h3>
-    <form id="contactForm">
-      <input type="text" id="contactName" placeholder="Name" required>
-      <input type="tel" id="contactPhone" placeholder="Phone (WhatsApp)" required>
-      <input type="email" id="contactEmail" placeholder="Email" required>
-      <button type="submit" class="btn-primary">Save</button>
-    </form>
   </div>
+
+  <!-- CONTACT SECTION -->
+  <div class="card">
+    <label>Emergency Contacts</label>
+
+    <select id="contact">
+      <option value="">Select Contact</option>
+      <option value="919876543210">👩 Mom</option>
+      <option value="918765432109">👨 Dad</option>
+    </select>
+
+    <div class="add-contact">
+      <input type="text" id="newName" placeholder="Name">
+      <input type="text" id="newNumber" placeholder="Number (9198xxxxxxx)">
+      <button onclick="addContact()">➕ Add</button>
+    </div>
+  </div>
+
+  <!-- STATUS SECTION -->
+  <div class="card status-card">
+    <div id="result">System Ready</div>
+    <div id="location"></div>
+  </div>
+
+  <!-- ALERT BUTTON -->
+  <button id="alertBtn" onclick="sendAlert()">🚨 Send Emergency Alert</button>
+
 </div>
 
 <script src="script.js"></script>
